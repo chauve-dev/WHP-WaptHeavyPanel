@@ -1,5 +1,0 @@
-<javac srcdir="./src" destdir="./build/classes">
-    <classpath>
-        <pathelement path="lib/jbl.jar"/>
-    </classpath>
-</javac>
