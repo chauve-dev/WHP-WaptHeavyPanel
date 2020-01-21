@@ -50,10 +50,16 @@ public class loginControl {
 
 
     private data donnees = data.getInstance();
-
     public loginControl() throws Exception {
     }
 
+    public void sendMessage(String msg) throws IOException {
+        dos.writeUTF(msg);
+    }
+
+    public void sendEncryptedMessage(String msg, PublicKey PK) throws Exception {
+        dos.writeUTF(encryption.encryptMessage(msg, PK));
+    }
 
     public void init() throws Exception {
         try {
@@ -61,12 +67,14 @@ public class loginControl {
 
             // establish the connection
             this.s = new Socket(ip, ServerPort);
-
+            donnees.setS(this.s);
             // obtaining input and out streams
             this.dis = new DataInputStream(s.getInputStream());
             this.dos = new DataOutputStream(s.getOutputStream());
             this.isInit = true;
-            dos.writeUTF("com:myPK:"+encryption.publicKeyToString(publicKey));
+            sendMessage("com:myPK:"+encryption.publicKeyToString(publicKey));
+            donnees.setServerPub(encryption.stringToPublicKey(dis.readUTF()));
+
         }catch (IOException e){
             Alert socketError = new Alert(Alert.AlertType.ERROR);
             socketError.setTitle("Erreur de connexion");
@@ -79,13 +87,14 @@ public class loginControl {
         init();
         if(password.getLength()>0 && login.getLength()>0) {
             if (isInit) {
+                donnees.setPrivateKey(privateKey);
                 try {
                     String commmand = "com:connexion:" + login.getText() + ";" + password.getText();
-                    dos.writeUTF(encryption.encryptMessage(commmand, privateKey));
+                    sendEncryptedMessage(commmand, donnees.getServerPub());
                     String received = dis.readUTF();
                     if (received.startsWith("canLogin")) {
-                        donnees.setServerPub(encryption.stringToPublicKey(received.split(":")[1]));
-
+                        donnees.setDos(dos);
+                        donnees.setDis(dis);
                         donnees.setIdentifiant(login.getText());
                         donnees.setPassword(password.getText());
                         //ouverture de l'accueil
@@ -112,7 +121,7 @@ public class loginControl {
                     socketError.setContentText("Impossible de communiquer \navec le serveur");
                     socketError.showAndWait();
                 }
-                s.close();
+                //s.close();
             }
         }else{
             Alert inputError = new Alert(Alert.AlertType.ERROR);

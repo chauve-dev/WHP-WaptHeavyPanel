@@ -46,7 +46,7 @@ public class Server
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
             // Create a new handler object for handling this request.
-            ClientHandler mtch = new ClientHandler(s,"client_" + s.getInetAddress(), dis, dos, privateKey, publicKey);
+            ClientHandler mtch = new ClientHandler(s,"client_" + i + "_" + s.getInetAddress(), dis, dos, privateKey, publicKey);
             // Create a new Thread with this object.
             Thread t = new Thread(mtch);
             // add this client to active clients list
@@ -54,7 +54,7 @@ public class Server
 
             // start the thread.
             t.start();
-
+            i++;
         }
     }
 }
@@ -85,6 +85,14 @@ class ClientHandler implements Runnable
         this.puK = puK;
     }
 
+    public void sendMessage(String msg) throws IOException {
+        dos.writeUTF(msg);
+    }
+
+    public void sendEncryptedMessage(String msg, PublicKey PK) throws Exception {
+        dos.writeUTF(encryption.encryptMessage(msg, PK));
+    }
+
     @Override
     public void run() {
 
@@ -103,14 +111,15 @@ class ClientHandler implements Runnable
                             switch (received[1]) {
                                 case "myPK":
                                     this.puKClient = encryption.stringToPublicKey(received[2]);
+                                    sendMessage(encryption.publicKeyToString(puK));
                             }
                             break;
                         default:
                             //doThing
                     }
             }else{
-                    received = encryption.decryptMessage(receivedTr, puKClient).split(":");
-                    System.out.println(received);
+                    System.out.println(encryption.decryptMessage(receivedTr, prK));
+                    received = encryption.decryptMessage(receivedTr, prK).split(":");
                     switch (received[0]) {
                         case "com":
                             switch (received[1]) {
@@ -119,13 +128,21 @@ class ClientHandler implements Runnable
                                     String login = command[0];
                                     String password = command[1];
                                     if (leControleur.canConnect(login, password)) {
-                                        dos.writeUTF("canLogin:"+encryption.publicKeyToString(puK));
+                                        sendMessage("canLogin:"+encryption.publicKeyToString(puK));
                                         System.out.println(this.name + " is logged in");
                                     } else {
-                                        dos.writeUTF("cannotLogin");
+                                        sendMessage("cannotLogin");
                                         System.out.println(this.name + " tried to connect");
                                     }
                                     break;
+                                case "getSalles":
+                                    String[] listeSalle = {"Salle 1", "Salle 2" ,"Salle 3", "Salle 4"};
+                                    String toSend ="";
+                                    for (String s : listeSalle){
+                                        toSend = toSend+s+";";
+                                    }
+                                    toSend = toSend.substring(0, toSend.length()-1);
+                                    sendEncryptedMessage(toSend, puKClient);
                             }
                             break;
                         default:

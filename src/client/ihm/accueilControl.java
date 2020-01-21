@@ -12,6 +12,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import client.encryption;
 ;
 import java.io.IOException;
 import java.net.URL;
@@ -26,9 +27,26 @@ public class accueilControl implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        String[] listeSalle = new String[]{};
+        try {
+            donnees.getDos().writeUTF(encryption.encryptMessage("com:getSalles:"+donnees.getIdentifiant(), donnees.getServerPub()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            listeSalle = encryption.decryptMessage(donnees.getDis().readUTF(), donnees.getPrivateKey()).split(";");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         listSalles.setItems(items);
-        for(int i=0; i<200; i++){
-            items.add("Salle "+i);
+
+
+        for (String s : listeSalle){
+            items.add(s);
         }
     }
 

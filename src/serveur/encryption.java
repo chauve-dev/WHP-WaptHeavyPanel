@@ -15,7 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class encryption {
-    // Get RSA keys. Uses key size of 2048.
+
+
+
     public static Map<String,Object> getRSAKeys() throws Exception {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
@@ -29,17 +31,19 @@ public class encryption {
         return keys;
     }
 
-    // Decrypt using RSA public key
-    public static String decryptMessage(String encryptedText, PublicKey publicKey) throws Exception {
+
+
+    public static String decryptMessage(String encryptedText, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return new String(cipher.doFinal(Base64.getDecoder().decode(encryptedText)));
     }
 
-    // Encrypt using RSA private key
-    public static String encryptMessage(String plainText, PrivateKey privateKey) throws Exception {
+
+
+    public static String encryptMessage(String plainText, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         return Base64.getEncoder().encodeToString(cipher.doFinal(plainText.getBytes()));
     }
 
