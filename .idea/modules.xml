@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/WHP.iml" filepath="$PROJECT_DIR$/WHP.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WHPClient/WHPClient.iml" filepath="$PROJECT_DIR$/WHPClient/WHPClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WHPServer/WHPServer.iml" filepath="$PROJECT_DIR$/WHPServer/WHPServer.iml" />
     </modules>
   </component>
 </project>

@@ -113,7 +113,6 @@ public class loginControl {
                         connError.setContentText("Impossible mot de passe \nou identifiant\nincorrect");
                         connError.showAndWait();
                     }
-                    System.out.println(received);
 
                 } catch (IOException e) {
                     Alert socketError = new Alert(Alert.AlertType.ERROR);

@@ -121,8 +121,8 @@ class ClientHandler implements Runnable
                             //doThing
                     }
             }else{
-                    System.out.println(this.name+" asked "+encryption.decryptMessage(receivedTr, prK));
                     received = encryption.decryptMessage(receivedTr, prK).split(":");
+                    System.out.println(this.name+" asked for "+received[0]+":"+received[1]);
                     switch (received[0]) {
                         case "com":
                             switch (received[1]) {
@@ -132,10 +132,10 @@ class ClientHandler implements Runnable
                                     String password = command[1];
                                     if (leControleur.canConnect(login, password)) {
                                         sendMessage("canLogin:"+encryption.publicKeyToString(puK));
-                                        System.out.println(this.name + " is logged in");
+                                        System.out.println(this.name+ " aka "+ login + " is logged in");
                                     } else {
                                         sendMessage("cannotLogin");
-                                        System.out.println(this.name + " tried to connect");
+                                        System.out.println(this.name+ " aka "+ login  + " tried to connect");
                                     }
                                     break;
                                 case "getSalles":
@@ -146,10 +146,12 @@ class ClientHandler implements Runnable
                                     }
                                     toSend = toSend.substring(0, toSend.length()-1);
                                     sendEncryptedMessage(toSend, puKClient);
+                                default:
+                                    System.out.println(this.name+" asked for "+received[0]+":"+received[1]+" but this command doesn't exist");
                             }
                             break;
                         default:
-                            //doThing
+                            System.out.println(this.name+" asked for "+received[0]+" but this service doesn't exist");
                     }
                 }
             } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
