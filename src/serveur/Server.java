@@ -27,15 +27,18 @@ public class Server
 
     public static void main(String[] args) throws Exception
     {
+        System.out.println("Starting KeyGen");
+        loader loader = new loader();
+        Thread load = new Thread(loader);
+        load.start();
         keys = encryption.getRSAKeys();
-
+        loader.setShowProgress(false);
         PrivateKey privateKey = (PrivateKey) keys.get("private");
         PublicKey publicKey = (PublicKey) keys.get("public");
         // server is listening on port 1234
         ServerSocket ss = new ServerSocket(1234);
 
         Socket s;
-
         // running infinite loop for getting
         // client request
         while (true)
@@ -118,7 +121,7 @@ class ClientHandler implements Runnable
                             //doThing
                     }
             }else{
-                    System.out.println(encryption.decryptMessage(receivedTr, prK));
+                    System.out.println(this.name+" asked "+encryption.decryptMessage(receivedTr, prK));
                     received = encryption.decryptMessage(receivedTr, prK).split(":");
                     switch (received[0]) {
                         case "com":

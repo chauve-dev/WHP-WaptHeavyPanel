@@ -20,7 +20,7 @@ public class encryption {
 
     public static Map<String,Object> getRSAKeys() throws Exception {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
+        keyPairGenerator.initialize(4096);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
@@ -68,7 +68,7 @@ public class encryption {
             c = decoder.decodeBuffer(s);
             keyFact = KeyFactory.getInstance("RSA");
         } catch (Exception e) {
-            System.out.println("Error in Keygen");
+            System.out.println("Erreur dans la génération de clé");
             e.printStackTrace();
         }
 
@@ -78,7 +78,7 @@ public class encryption {
             returnKey = keyFact.generatePublic(x509KeySpec);
         } catch (Exception e) {
 
-            System.out.println("Error in Keygen2");
+            System.out.println("Erreur dans la génération de clé");
             e.printStackTrace();
 
         }
