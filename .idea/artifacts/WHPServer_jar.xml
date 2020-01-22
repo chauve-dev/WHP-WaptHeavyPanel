@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="WHPServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/WHPServer_jar</output-path>
+    <root id="archive" name="WHPServer.jar">
+      <element id="module-output" name="WHPServer" />
+    </root>
+  </artifact>
+</component>

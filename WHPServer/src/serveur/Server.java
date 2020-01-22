@@ -9,6 +9,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.SQLException;
 import java.util.*;
 import java.net.*;
 
@@ -27,7 +28,8 @@ public class Server
 
     public static void main(String[] args) throws Exception
     {
-        System.out.println("Starting KeyGen");
+        System.out.println("\033[31mBeware when stopping the server, you must type 'close' in the console or the socket will stay alive, and you really don't want that to happen.");
+        System.out.println("\033[31mYou can type 'help' to get all the commands.");
         loader loader = new loader();
         Thread load = new Thread(loader);
         load.start();
@@ -35,9 +37,11 @@ public class Server
         loader.setShowProgress(false);
         PrivateKey privateKey = (PrivateKey) keys.get("private");
         PublicKey publicKey = (PublicKey) keys.get("public");
+        serverCommander sc = new serverCommander();
+        Thread ServC = new Thread(sc);
+        ServC.start();
         // server is listening on port 1234
         ServerSocket ss = new ServerSocket(1234);
-
         Socket s;
         // running infinite loop for getting
         // client request
@@ -58,6 +62,122 @@ public class Server
             // start the thread.
             t.start();
             i++;
+        }
+    }
+}
+
+class serverCommander implements Runnable{
+    Socket s;
+    public serverCommander(){
+    }
+    @Override
+    public void run() {
+        String input;
+        while(true) {
+            Scanner userInput = new Scanner(System.in);
+            input = userInput.nextLine();
+
+            JDBControleur Bdd = null;
+            switch (input){
+                case("getAllUsers"):
+                    Bdd = new JDBControleur();
+                    try {
+                        for (String s : Bdd.getAllUsers()) {
+                            System.out.println("\033[0;33m"+s+"\033[0m");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case("addUser"):
+                    Bdd = new JDBControleur();
+                    String cUser ="";
+                    Scanner scUser = new Scanner(System.in);
+                    System.out.println("Last name : ");
+                    cUser = cUser+scUser.nextLine()+";";
+                    System.out.println("Name : ");
+                    cUser = cUser+scUser.nextLine()+";";
+                    System.out.println("Mail : ");
+                    cUser = cUser+scUser.nextLine()+";";
+                    System.out.println("Login : ");
+                    cUser = cUser+scUser.nextLine()+";";
+                    System.out.println("password : ");
+                    cUser = cUser+scUser.nextLine()+";";
+                    System.out.println("Status : ");
+                    cUser = cUser+scUser.nextLine();
+                    try {
+                        Bdd.addUser(cUser);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case ("updateUser"):
+                    Bdd = new JDBControleur();
+                    String uUser ="";
+                    Scanner scUUser = new Scanner(System.in);
+                    System.out.println("Id of the user you want to update : ");
+                    uUser = uUser + scUUser.nextLine()+";";
+                    System.out.println("What do you want to update\n" +
+                            "0 | Nothing\n" +
+                            "1 | Last name\n" +
+                            "2 | Name\n" +
+                            "3 | Mail\n" +
+                            "4 | Login\n" +
+                            "5 | Password\n" +
+                            "6 | Status");
+                    String toUpdate = "0";
+                    toUpdate = scUUser.nextLine();
+                    switch (toUpdate){
+                        case("1"):
+                            uUser = uUser+"uti_nom;";
+                            break;
+                        case("2"):
+                            uUser = uUser+"uti_prenom;";
+                            break;
+                        case("3"):
+                            uUser = uUser+"uti_mail;";
+                            break;
+                        case("4"):
+                            uUser = uUser+"uti_username;";
+                            break;
+                        case("5"):
+                            uUser = uUser+"uti_password;";
+                            break;
+                        case("6"):
+                            uUser = uUser+"uti_statut;";
+                            break;
+
+                    }
+                    if(!(toUpdate.equals("0"))) {
+                        System.out.println("With the value : ");
+                        uUser = uUser + scUUser.nextLine();
+                        System.out.println(uUser);
+                        try {
+                            Bdd.updateUser(uUser);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case("help"):
+                    System.out.println("\033[0;33mServer commands : ");
+                    System.out.println("\033[0;36mhelp  \033[0m| Show this help page.");
+                    System.out.println("\033[0;36mgetAllUsers  \033[0m| Show all users referenced in the database.");
+                    System.out.println("\033[0;36maddUser \033[0m| Add a user.");
+                    System.out.println("\033[0;36mupdateUser \033[0m| Update the value of a user.");
+                    System.out.println("\033[0;36mclose \033[0m| Close the program and all component properly.");
+                    break;
+                case("close"):
+                    System.exit(0);
+                    break;
+
+
+
+            }
         }
     }
 }
@@ -131,27 +251,40 @@ class ClientHandler implements Runnable
                                     String login = command[0];
                                     String password = command[1];
                                     if (leControleur.canConnect(login, password)) {
+                                        this.name = "client_"+login+s.getInetAddress();
                                         sendMessage("canLogin:"+encryption.publicKeyToString(puK));
-                                        System.out.println(this.name+ " aka "+ login + " is logged in");
+                                        System.out.println(this.name+ " is logged in");
                                     } else {
                                         sendMessage("cannotLogin");
-                                        System.out.println(this.name+ " aka "+ login  + " tried to connect");
+                                        System.out.println(this.name + " tried to connect");
                                     }
                                     break;
                                 case "getSalles":
                                     String[] listeSalle = {"Salle 1", "Salle 2" ,"Salle 3", "Salle 4"};
-                                    String toSend ="";
+                                    String toSendS ="";
                                     for (String s : listeSalle){
-                                        toSend = toSend+s+";";
+                                        toSendS = toSendS+s+";";
                                     }
-                                    toSend = toSend.substring(0, toSend.length()-1);
-                                    sendEncryptedMessage(toSend, puKClient);
+                                    toSendS = toSendS.substring(0, toSendS.length()-1);
+                                    sendEncryptedMessage(toSendS, puKClient);
+                                    break;
+                                case "selSalle":
+                                    String[] listePc = {"pc 1", "pc 2" ,"pc 3", "pc 4"};
+                                    String toSendP ="";
+                                    for (String s : listePc){
+                                        toSendP = toSendP+s+";";
+                                    }
+                                    toSendP = toSendP.substring(0, toSendP.length()-1);
+                                    sendEncryptedMessage(toSendP, puKClient);
+                                    break;
                                 default:
                                     System.out.println(this.name+" asked for "+received[0]+":"+received[1]+" but this command doesn't exist");
+                                    break;
                             }
                             break;
                         default:
                             System.out.println(this.name+" asked for "+received[0]+" but this service doesn't exist");
+                            break;
                     }
                 }
             } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -178,6 +311,7 @@ class ClientHandler implements Runnable
             // closing resources
             this.dis.close();
             this.dos.close();
+            s.close();
 
         }catch(IOException e){
             e.printStackTrace();

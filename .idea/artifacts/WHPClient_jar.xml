@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="WHPClient:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/WHPClient_jar</output-path>
+    <root id="archive" name="WHPClient.jar">
+      <element id="module-output" name="WHPClient" />
+    </root>
+  </artifact>
+</component>

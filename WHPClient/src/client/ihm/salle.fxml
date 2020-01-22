@@ -11,7 +11,7 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="586.0" prefWidth="642.0">
                      <children>
-                        <ListView fx:id="listePc" onMouseClicked="#selectPc" prefHeight="586.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <ListView fx:id="listePcs" onMouseClicked="#selectPc" prefHeight="586.0" prefWidth="543.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
               </content>
