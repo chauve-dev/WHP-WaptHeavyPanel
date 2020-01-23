@@ -89,6 +89,18 @@ class serverCommander implements Runnable{
                         e.printStackTrace();
                     }
                     break;
+
+                case("getAllRooms"):
+                    Bdd = new JDBControleur();
+                    try {
+                        for (String s : Bdd.getAllRooms()) {
+                            System.out.println("\033[0;33m"+s+"\033[0m");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
                 case("addUser"):
                     Bdd = new JDBControleur();
                     String cUser ="";
@@ -127,9 +139,9 @@ class serverCommander implements Runnable{
                             "4 | Login\n" +
                             "5 | Password\n" +
                             "6 | Status");
-                    String toUpdate = "0";
-                    toUpdate = scUUser.nextLine();
-                    switch (toUpdate){
+                    String toUpdateU = "0";
+                    toUpdateU = scUUser.nextLine();
+                    switch (toUpdateU){
                         case("1"):
                             uUser = uUser+"uti_nom;";
                             break;
@@ -150,10 +162,9 @@ class serverCommander implements Runnable{
                             break;
 
                     }
-                    if(!(toUpdate.equals("0"))) {
+                    if(!(toUpdateU.equals("0"))) {
                         System.out.println("With the value : ");
                         uUser = uUser + scUUser.nextLine();
-                        System.out.println(uUser);
                         try {
                             Bdd.updateUser(uUser);
                         } catch (SQLException e) {
@@ -163,12 +174,107 @@ class serverCommander implements Runnable{
                         }
                     }
                     break;
+                case("addRoom"):
+                    Bdd = new JDBControleur();
+                    String cRoom ="";
+                    Scanner scRoom = new Scanner(System.in);
+                    System.out.println("Name of the room : ");
+                    cRoom = cRoom+scRoom.nextLine()+";";
+                    System.out.println("Description of the room : ");
+                    cRoom = cRoom+scRoom.nextLine();
+                    try {
+                        Bdd.addSalle(cRoom);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                case ("updateRoom"):
+                    Bdd = new JDBControleur();
+                    String uRoom ="";
+                    Scanner scURoom = new Scanner(System.in);
+                    System.out.println("Id of the room you want to update : ");
+                    uRoom = uRoom + scURoom.nextLine()+";";
+                    System.out.println("What do you want to update\n" +
+                            "0 | Nothing\n" +
+                            "1 | Name\n" +
+                            "2 | Description");
+                    String toUpdater = "0";
+                    toUpdater = scURoom.nextLine();
+                    switch (toUpdater){
+                        case("1"):
+                            uRoom = uRoom+"sal_nom;";
+                            break;
+                        case("2"):
+                            uRoom = uRoom+"sal_desc;";
+                            break;
+
+
+                    }
+                    if(!(toUpdater.equals("0"))) {
+                        System.out.println("With the value : ");
+                        uRoom = uRoom + scURoom.nextLine();
+                        try {
+                            Bdd.updateRoom(uRoom);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+
+                case("listAccess"):
+                    Bdd = new JDBControleur();
+                    try {
+                        for (String s : Bdd.listAccess()) {
+                            System.out.println("\033[0;33m"+s+"\033[0m");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                case("addAccess"):
+                    Bdd = new JDBControleur();
+                    String cAcces ="";
+                    Scanner scAcces = new Scanner(System.in);
+                    System.out.println("Id of the user : ");
+                    cAcces = cAcces+scAcces.nextLine()+";";
+                    System.out.println("Id of the room : ");
+                    cAcces = cAcces+scAcces.nextLine();
+                    try {
+                        Bdd.addUserToRoom(cAcces);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+                case("removeAccess"):
+                    Bdd = new JDBControleur();
+                    String rAcces ="";
+                    Scanner scrAcces = new Scanner(System.in);
+                    System.out.println("Id of the user : ");
+                    rAcces = rAcces+scrAcces.nextLine()+";";
+                    System.out.println("Id of the room : ");
+                    rAcces = rAcces+scrAcces.nextLine();
+                    try {
+                        Bdd.addUserToRoom(rAcces);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
+
                 case("help"):
                     System.out.println("\033[0;33mServer commands : ");
                     System.out.println("\033[0;36mhelp  \033[0m| Show this help page.");
                     System.out.println("\033[0;36mgetAllUsers  \033[0m| Show all users referenced in the database.");
                     System.out.println("\033[0;36maddUser \033[0m| Add a user.");
                     System.out.println("\033[0;36mupdateUser \033[0m| Update the value of a user.");
+                    System.out.println("\033[0;36mlistAccess \033[0m| List all user->room access.");
+                    System.out.println("\033[0;36maddAccess \033[0m| Add a user->room access.");
+                    System.out.println("\033[0;36mremoveAccess \033[0m| Remove a user->room access.");
                     System.out.println("\033[0;36mclose \033[0m| Close the program and all component properly.");
                     break;
                 case("close"):
@@ -192,6 +298,7 @@ class ClientHandler implements Runnable
     Socket s;
     PrivateKey prK;
     PublicKey puK;
+    private JDBControleur Bdd;
 
     PublicKey puKClient;
     boolean isloggedin;
@@ -260,21 +367,28 @@ class ClientHandler implements Runnable
                                     }
                                     break;
                                 case "getSalles":
-                                    String[] listeSalle = {"Salle 1", "Salle 2" ,"Salle 3", "Salle 4"};
+                                    Bdd = new JDBControleur();
+                                    ArrayList<String> lesSalles = new ArrayList<String>();
                                     String toSendS ="";
-                                    for (String s : listeSalle){
-                                        toSendS = toSendS+s+";";
+                                    for (String s : Bdd.getAllRoomsUsable(received[2])){
+                                        String[] s1 = s.split(";");
+                                        toSendS = toSendS+s1[1]+"\n\t"+s1[2]+";";
                                     }
-                                    toSendS = toSendS.substring(0, toSendS.length()-1);
+                                    if (toSendS.length()>0) {
+                                        toSendS = toSendS.substring(0, toSendS.length() - 1);
+                                    }
                                     sendEncryptedMessage(toSendS, puKClient);
                                     break;
                                 case "selSalle":
-                                    String[] listePc = {"pc 1", "pc 2" ,"pc 3", "pc 4"};
+                                    Bdd = new JDBControleur();
+                                    ArrayList<String> lesPc = new ArrayList<String>();
                                     String toSendP ="";
-                                    for (String s : listePc){
+                                    for (String s : Bdd.getAllPcUsable(received[2])){
                                         toSendP = toSendP+s+";";
                                     }
-                                    toSendP = toSendP.substring(0, toSendP.length()-1);
+                                    if (toSendP.length()>0) {
+                                        toSendP = toSendP.substring(0, toSendP.length() - 1);
+                                    }
                                     sendEncryptedMessage(toSendP, puKClient);
                                     break;
                                 default:

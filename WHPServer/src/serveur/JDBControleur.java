@@ -1,7 +1,5 @@
 package serveur;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
@@ -20,6 +18,86 @@ public class JDBControleur {
         return DriverManager.getConnection(url, user, password);
     }
 
+    public ArrayList<String> getAllUsersUsable() throws SQLException {
+        ArrayList<String> lesUtilisateurs = new ArrayList<String>();
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "select * from utilisateur";
+        ResultSet rs = stmt.executeQuery(SQL);
+        while (rs.next()) {
+            lesUtilisateurs.add(new String(rs.getInt("uti_id") + ";" + rs.getString("uti_nom") + ";" + rs.getString("uti_prenom") + ";" + rs.getString("uti_mail") + ";" + rs.getString("uti_username") + ";" + rs.getInt("uti_statut")));
+        }
+        rs.close();
+        return lesUtilisateurs;
+    }
+
+    public ArrayList<String> getAllRoomsUsable(String login) throws SQLException {
+        ArrayList<String> lesSalles = new ArrayList<String>();
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "select * from salle inner join acces on acces.sal_id = salle.sal_id inner join utilisateur on acces.uti_id = utilisateur.uti_id where uti_username='"+login+"';";
+        ResultSet rs = stmt.executeQuery(SQL);
+        while (rs.next()) {
+            lesSalles.add(new String(rs.getInt("sal_id")+";"+rs.getString("sal_nom")+";"+rs.getString("sal_desc")));
+        }
+        rs.close();
+        return lesSalles;
+    }
+
+    public ArrayList<String> getAllPcUsable(String salle) throws SQLException {
+        ArrayList<String> lesPc = new ArrayList<String>();
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "select pc_nom from pc inner join salle on pc.sal_id = salle.sal_id where salle.sal_nom='"+salle+"';";
+        ResultSet rs = stmt.executeQuery(SQL);
+        while (rs.next()) {
+            lesPc.add(rs.getString("pc_nom"));
+        }
+        rs.close();
+        return lesPc;
+    }
+
+    public void addUserToRoom(String com) throws SQLException {
+        String[] args = com.split(";");
+        if (args.length == 2){
+            conn = this.connect();
+            Statement stmt = conn.createStatement();
+            String SQL = "INSERT INTO acces VALUES  ("+args[0]+", "+args[1]+")";
+            stmt.executeUpdate(SQL);
+            System.out.println("access created.");
+        }else{
+            System.out.println("Error : Did you typed ';' in the information ?");
+        }
+    }
+
+    public void deleteUserFromRoom(String com) throws SQLException {
+        String[] args = com.split(";");
+        if (args.length == 2){
+            conn = this.connect();
+            Statement stmt = conn.createStatement();
+            String SQL = "DELETE FROM acces where uti_id="+args[0]+" AND sal_id="+args[1];
+            stmt.executeUpdate(SQL);
+            System.out.println("access created.");
+        }else{
+            System.out.println("Error : Did you typed ';' in the information ?");
+        }
+    }
+
+    public ArrayList<String> listAccess() throws SQLException {
+        ArrayList<String> lesAcces = new ArrayList<String>();
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "select uti_username, sal_nom from acces\n" +
+                "inner join salle on acces.sal_id = salle.sal_id\n" +
+                "inner join utilisateur on acces.uti_id = utilisateur.uti_id";
+        ResultSet rs = stmt.executeQuery(SQL);
+        while (rs.next()) {
+            lesAcces.add(rs.getString("uti_username")+" -> "+rs.getString("sal_nom"));
+        }
+        rs.close();
+        return lesAcces;
+    }
+
     public ArrayList<String> getAllUsers() throws SQLException {
         ArrayList<String> lesUtilisateurs = new ArrayList<String>();
         conn = this.connect();
@@ -31,6 +109,19 @@ public class JDBControleur {
         }
         rs.close();
         return lesUtilisateurs;
+    }
+
+    public ArrayList<String> getAllRooms() throws SQLException {
+        ArrayList<String> lesSalles = new ArrayList<String>();
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "select * from salle";
+        ResultSet rs = stmt.executeQuery(SQL);
+        while (rs.next()) {
+            lesSalles.add(new String(rs.getInt("sal_id")+" | Name: "+rs.getString("sal_nom")+"\nDescription: "+rs.getString("sal_desc")+"\n-"));
+        }
+        rs.close();
+        return lesSalles;
     }
 
     public Boolean conUser(String username, String password) throws SQLException {
@@ -72,12 +163,40 @@ public class JDBControleur {
             conn = this.connect();
             Statement stmt = conn.createStatement();
             String SQL = "UPDATE utilisateur set "+args[1]+"='"+args[2]+"' WHERE uti_id="+args[0];
-            System.out.println(SQL);
             if (args[0].equals("status")){
                 SQL = SQL.replace("'", "");
             }
             stmt.executeUpdate(SQL);
             System.out.println("User updated.");
+        }else{
+            System.out.println("Error : Did you typed ';' in the information ?");
+        }
+    }
+
+    public void addSalle(String com) throws SQLException {
+        String[] args = com.split(";");
+        if (args.length == 2){
+            conn = this.connect();
+            Statement stmt = conn.createStatement();
+            String SQL = "INSERT INTO salle (sal_nom, sal_desc) VALUES  ('"+args[0]+"', '"+args[1]+"');";
+            stmt.executeUpdate(SQL);
+            System.out.println("Room created.");
+        }else{
+            System.out.println("Error : Did you typed ';' in the information ?");
+        }
+    }
+
+    public void updateRoom(String com) throws SQLException, NoSuchAlgorithmException {
+        String[] args = com.split(";");
+        if (args.length == 3){
+            conn = this.connect();
+            Statement stmt = conn.createStatement();
+            String SQL = "UPDATE salle set "+args[1]+"='"+args[2]+"' WHERE sal_id="+args[0];
+            if (args[0].equals("status")){
+                SQL = SQL.replace("'", "");
+            }
+            stmt.executeUpdate(SQL);
+            System.out.println("Room updated.");
         }else{
             System.out.println("Error : Did you typed ';' in the information ?");
         }

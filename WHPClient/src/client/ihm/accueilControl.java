@@ -42,9 +42,8 @@ public class accueilControl implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         listSalles.setItems(items);
-
-
         for (String s : listeSalle){
             items.add(s);
         }
@@ -56,7 +55,8 @@ public class accueilControl implements Initializable {
         if(mouseEvent.getClickCount()>=2) {
             String salle = listSalles.getSelectionModel().getSelectedItems().toString();
             salle = salle.substring(1, salle.length()-1);
-            donnees.setSelectedSalle(salle);
+            String[] laSalle = salle.split("\n");
+            donnees.setSelectedSalle(laSalle[0]);
             Stage main = new Stage();
             Parent root = FXMLLoader.load(getClass().getResource("salle.fxml"));
             main.setTitle("WHP - "+salle);
