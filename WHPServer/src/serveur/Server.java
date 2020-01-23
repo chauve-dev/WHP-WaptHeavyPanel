@@ -259,7 +259,7 @@ class serverCommander implements Runnable{
                     System.out.println("Id of the room : ");
                     rAcces = rAcces+scrAcces.nextLine();
                     try {
-                        Bdd.addUserToRoom(rAcces);
+                        Bdd.deleteUserFromRoom(rAcces);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
