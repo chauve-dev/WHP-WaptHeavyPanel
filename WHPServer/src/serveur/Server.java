@@ -20,10 +20,8 @@ public class Server
     // Vector to store active clients
     static Vector<ClientHandler> ar = new Vector<>();
     private static Map<String, Object> keys;
-    private static PrivateKey privateKey;
-    private static PublicKey publicKey;
 
-    public Server() throws NoSuchPaddingException, NoSuchAlgorithmException {
+    public Server()  {
     }
 
     public static void main(String[] args) throws Exception
@@ -427,7 +425,7 @@ class ClientHandler implements Runnable
         }
         try
         {
-            // closing resources
+            // closing client.resources
             this.dis.close();
             this.dos.close();
             s.close();

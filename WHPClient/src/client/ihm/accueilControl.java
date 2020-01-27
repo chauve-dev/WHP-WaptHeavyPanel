@@ -6,19 +6,25 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import client.encryption;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 ;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class accueilControl implements Initializable {
+    public VBox checkboxes;
+    public String selected=null;
+    public Label salleselectionnee;
     @FXML
     private ListView listSalles;
     private ObservableList<String> items = FXCollections.observableArrayList();
@@ -47,11 +53,23 @@ public class accueilControl implements Initializable {
         for (String s : listeSalle){
             items.add(s);
         }
+
+        for (int i=1; i<40; i++) {
+            checkboxes.getChildren().add(new CheckBox("test"+i));
+            checkboxes.getChildren().add(new Separator());
+        }
     }
 
 
 
     public void selectItem(MouseEvent mouseEvent) throws IOException {
+        if(mouseEvent.getClickCount()==1){
+            String salle = listSalles.getSelectionModel().getSelectedItems().toString();
+            salle = salle.substring(1, salle.length()-1);
+            String[] laSalle = salle.split("\n");
+            this.selected= laSalle[0];
+            salleselectionnee.setText(this.selected);
+        }
         if(mouseEvent.getClickCount()>=2) {
             String salle = listSalles.getSelectionModel().getSelectedItems().toString();
             salle = salle.substring(1, salle.length()-1);
@@ -65,6 +83,28 @@ public class accueilControl implements Initializable {
             main.setScene(new Scene(root));
             main.setResizable(false);
             main.show();
+        }
+    }
+
+    public void lanceInstall(MouseEvent mouseEvent) {
+        if(!(this.selected == null)) {
+            for (Node i : checkboxes.getChildren()) {
+                if (i.getTypeSelector().equals("CheckBox")) {
+                    if(((CheckBox)i).isSelected()) {
+                        System.out.println(((CheckBox) i).getText());
+                        ((CheckBox) i).setSelected(false);
+                    }
+                }
+            }
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Ok !");
+            confirmation.setContentText("La requête d'installation\na été envoyé, les paquets\nseront installé sous peu.");
+            confirmation.showAndWait();
+        }else{
+            Alert selectionWarning = new Alert(Alert.AlertType.WARNING);
+            selectionWarning.setTitle("Attention !");
+            selectionWarning.setContentText("Il n'est pas possible d'installer\ndes paquets temps que la salle n'est\npas sélectionnée.");
+            selectionWarning.showAndWait();
         }
     }
 }
