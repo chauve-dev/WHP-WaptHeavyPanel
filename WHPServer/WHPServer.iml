@@ -8,5 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="postgresql-42.2.9" level="project" />
+    <orderEntry type="library" name="jaxrs-api-3.0.8.Final" level="project" />
+    <orderEntry type="library" name="java-json" level="project" />
   </component>
 </module>

@@ -32,6 +32,9 @@ public class Server
         System.out.println("\033[31mYou can type 'help' to get all the commands.");
         loader loader = new loader();
         Thread load = new Thread(loader);
+        data donnees = data.getInstance();
+        donnees.setUser(args[1]);
+        donnees.setPassword(args[2]);
         load.start();
         keys = encryption.getRSAKeys();
         loader.setShowProgress(false);
@@ -41,9 +44,14 @@ public class Server
         Thread ServC = new Thread(sc);
         ServC.start();
         // server is listening on port 1234
-        ServerSocket ss = new ServerSocket(1234);
+        ServerSocket ss;
+        try {
+            ss = new ServerSocket(Integer.parseInt(args[0]));
+        }catch (NumberFormatException e){
+            ss = new ServerSocket(1234);
+        }
         Socket s;
-        // running infinite loop for getting
+        // running  infinite loop for getting
         // client request
         while (true)
         {
@@ -280,9 +288,6 @@ class serverCommander implements Runnable{
                 case("close"):
                     System.exit(0);
                     break;
-
-
-
             }
         }
     }

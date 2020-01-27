@@ -12,9 +12,10 @@ public class JDBControleur {
     private static Connection conn;
 
     public Connection connect() throws SQLException {
+        data donnees = data.getInstance();
         String url = "jdbc:postgresql://127.0.0.1/WHP";
-        String user = "WHPUser";
-        String password = "password";
+        String user = donnees.getUser();
+        String password = donnees.getPassword();
         return DriverManager.getConnection(url, user, password);
     }
 
@@ -77,7 +78,7 @@ public class JDBControleur {
             Statement stmt = conn.createStatement();
             String SQL = "DELETE FROM acces where uti_id="+args[0]+" AND sal_id="+args[1];
             stmt.executeUpdate(SQL);
-            System.out.println("access created.");
+            System.out.println("access removed.");
         }else{
             System.out.println("Error : Did you typed ';' in the information ?");
         }

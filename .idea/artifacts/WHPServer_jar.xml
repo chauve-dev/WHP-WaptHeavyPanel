@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/WHPServer_jar</output-path>
     <root id="archive" name="WHPServer.jar">
       <element id="module-output" name="WHPServer" />
+      <element id="library" level="project" name="postgresql-42.2.9" />
     </root>
   </artifact>
 </component>
