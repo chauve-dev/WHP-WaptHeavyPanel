@@ -38,6 +38,7 @@ public class salleControl implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         String[] listePc = new String[]{};
+        String[] listePaquet = new String[]{};
         try {
             donnees.getDos().writeUTF(encryption.encryptMessage("com:selSalle:"+donnees.getSelectedSalle(), donnees.getServerPub()));
         } catch (IOException e) {
@@ -52,15 +53,25 @@ public class salleControl implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        try {
+            donnees.getDos().writeUTF(encryption.encryptMessage("com:getPaquets", donnees.getServerPub()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            listePaquet = encryption.decryptMessage(donnees.getDis().readUTF(), donnees.getPrivateKey()).split(";");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         listePcs.setItems(items);
-
-
         for (String s : listePc){
             items.add(s);
         }
 
-        for (int i=1; i<40; i++) {
-            checkboxes.getChildren().add(new CheckBox("test"+i));
+        for (String s : listePaquet){
+            checkboxes.getChildren().add(new CheckBox(s));
             checkboxes.getChildren().add(new Separator());
         }
 

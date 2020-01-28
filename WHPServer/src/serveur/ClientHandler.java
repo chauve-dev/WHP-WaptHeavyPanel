@@ -116,6 +116,9 @@ class ClientHandler implements Runnable
                                     }
                                     sendEncryptedMessage(toSendP, puKClient);
                                     break;
+                                case "getPaquets":
+                                    sendEncryptedMessage(httpRequest.getPackages(), puKClient);
+                                    break;
                                 default:
                                     System.out.println(this.name+" asked for "+received[0]+":"+received[1]+" but this command doesn't exist");
                                     break;

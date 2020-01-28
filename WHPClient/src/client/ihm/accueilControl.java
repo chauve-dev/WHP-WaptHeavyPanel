@@ -34,7 +34,7 @@ public class accueilControl implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         String[] listeSalle = new String[]{};
-        String[] listPaquet = new String[]{};
+        String[] listePaquet = new String[]{};
         try {
             donnees.getDos().writeUTF(encryption.encryptMessage("com:getSalles:"+donnees.getIdentifiant(), donnees.getServerPub()));
         } catch (IOException e) {
@@ -56,6 +56,11 @@ public class accueilControl implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            listePaquet = encryption.decryptMessage(donnees.getDis().readUTF(), donnees.getPrivateKey()).split(";");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         listSalles.setItems(items);
         for (String s : listeSalle){
@@ -63,10 +68,8 @@ public class accueilControl implements Initializable {
         }
 
 
-
-
-        for (int i=1; i<40; i++) {
-            checkboxes.getChildren().add(new CheckBox("test"+i));
+        for (String s : listePaquet){
+            checkboxes.getChildren().add(new CheckBox(s));
             checkboxes.getChildren().add(new Separator());
         }
     }
