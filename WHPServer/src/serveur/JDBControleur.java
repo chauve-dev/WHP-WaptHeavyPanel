@@ -1,6 +1,8 @@
 package serveur;
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -17,6 +19,31 @@ public class JDBControleur {
         String user = donnees.getUser();
         String password = donnees.getPassword();
         return DriverManager.getConnection(url, user, password);
+    }
+
+    public void initPc() throws SQLException {
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "DELETE FROM pc";
+        stmt.executeUpdate(SQL);
+    }
+
+    public void addPc(String nom) throws SQLException {
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "INSERT into pc (pc_nom, sal_id) values ("+"'"+nom+"',1)";
+        stmt.executeUpdate(SQL);
+    }
+
+    public Boolean doesComputerExist(String nom) throws SQLException {
+        conn = this.connect();
+        Statement stmt = conn.createStatement();
+        String SQL = "select * from pc where pc_nom='"+nom+"'";
+        ResultSet rs = stmt.executeQuery(SQL);
+        if(rs.next()){
+            return true;
+        }
+        return false;
     }
 
     public ArrayList<String> getAllUsersUsable() throws SQLException {

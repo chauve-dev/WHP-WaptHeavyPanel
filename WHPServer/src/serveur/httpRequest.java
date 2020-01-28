@@ -4,10 +4,15 @@ import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -17,9 +22,9 @@ import java.util.Base64;
 public class httpRequest {
 
 
-    public static String getStringHttp(String URL) {
+    public static String getStringHttp(String URL, String username, String password) {
         StringBuilder returned = new StringBuilder();
-        String usernameColonPassword = "admin:@laclaireFONTAINE";
+        String usernameColonPassword = username+":"+password;
         String basicAuthPayload = "Basic " + Base64.getEncoder().encodeToString(usernameColonPassword.getBytes());
 
         BufferedReader httpResponseReader = null;
@@ -59,7 +64,7 @@ public class httpRequest {
 
     public static String getPackages() throws JSONException {
         StringBuilder toreturn= new StringBuilder();
-        String string = getStringHttp("http://10.122.52.253/api/v3/packages");
+        String string = getStringHttp("http://10.122.52.253/api/v3/packages", "admin", "@laclaireFONTAINE");
         JSONObject json = new JSONObject(string);
         JSONArray jarray = json.getJSONArray("result");
         for (int i = 0; i <jarray.length(); i++){
@@ -71,8 +76,66 @@ public class httpRequest {
         return toreturn.toString();
     }
 
-    public static void main(String[] args) {
+    public static String getHosts() throws JSONException{
+        StringBuilder toreturn= new StringBuilder();
+        String string = getStringHttp("http://10.122.52.253/api/v1/hosts", "admin", "@laclaireFONTAINE");
+        JSONObject json = new JSONObject(string);
+        JSONArray jarray = json.getJSONArray("result");
+        for (int i = 0; i <jarray.length(); i++){
+            JSONObject obj = jarray.getJSONObject(i);
+            toreturn.append(obj.getString("computer_name"));
+            toreturn.append(";");
+        }
+        toreturn.deleteCharAt(toreturn.length()-1);
+        return toreturn.toString();
+    }
 
+    public static String getHostsDet(String name) throws JSONException {
+        StringBuilder toreturn= new StringBuilder();
+        String string = getStringHttp("http://10.122.52.253/api/v1/hosts",  "admin", "@laclaireFONTAINE");
+        JSONObject json = new JSONObject(string);
+        JSONArray jarray = json.getJSONArray("result");
+        for (int i = 0; i <jarray.length(); i++){
+            JSONObject obj = jarray.getJSONObject(i);
+            if(obj.getString("computer_name").equals(name)){
+                toreturn.append(obj.getString("computer_name")+";");
+                toreturn.append(obj.getString("os_name")+";");
+                toreturn.append(obj.getString("manufacturer")+";");
+                toreturn.append(obj.getString("productname")+";");
+                if(obj.getJSONArray("connected_ips").getString(0)!=null) {
+                    toreturn.append(obj.getJSONArray("connected_ips").getString(0)+";");
+                }else{
+                    toreturn.append("0.0.0.0;");
+                }
+                if(obj.getJSONArray("mac_addresses").getString(0)!=null) {
+                    toreturn.append(obj.getJSONArray("mac_addresses").getString(0)+";");
+                }else{
+                    toreturn.append("00:00:00:00:00:00;");
+                }
+                toreturn.append(obj.getString("dnsdomain")+";");
+                toreturn.append(obj.getString("reachable")+";");
+                toreturn.append(obj.getString("host_status"));
+            }
+        }
+        return toreturn.toString();
+    }
+
+
+    public static void main(String[] args) throws JSONException, ParserConfigurationException, IOException, SAXException {
+        String string = getStringHttp("https://afpa.service-now.com/api/now/table/cmdb_ci_computer"/*+"?sysparm_limit=100"*/, "PROX01", "pr@789dsi");
+        JSONObject json = new JSONObject(string);
+        JSONArray jarray = json.getJSONArray("result");
+        for (int i = 0; i < jarray.length(); i++) {
+            JSONObject obj = jarray.getJSONObject(i);
+            try {
+            if(obj.getJSONObject("location").getString("link").equals("https://afpa.service-now.com/api/now/table/cmn_location/c9fa757b2bce11001b70d24d59da15ed")) {
+                //System.out.println(obj.toString().replace(",", ",\n"));
+                System.out.println(obj.getString("name"));
+            }
+            }catch (JSONException e){
+
+            }
+        }
     }
 
 }

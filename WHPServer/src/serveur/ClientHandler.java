@@ -119,6 +119,11 @@ class ClientHandler implements Runnable
                                 case "getPaquets":
                                     sendEncryptedMessage(httpRequest.getPackages(), puKClient);
                                     break;
+                                case "getDetPc":
+                                    sendEncryptedMessage(httpRequest.getHostsDet(received[2]), puKClient);
+                                    break;
+                                case "install":
+                                    break;
                                 default:
                                     System.out.println(this.name+" asked for "+received[0]+":"+received[1]+" but this command doesn't exist");
                                     break;

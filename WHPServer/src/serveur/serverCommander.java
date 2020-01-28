@@ -1,5 +1,7 @@
 package serveur;
 
+import org.json.JSONException;
+
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -202,13 +204,62 @@ class serverCommander implements Runnable{
                     }
                     break;
 
+                case("initBdd"):
+                    String[] lesPc = new String[]{};
+                    Bdd = new JDBControleur();
+                    try {
+                        Bdd.initPc();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        lesPc = httpRequest.getHosts().split(";");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    for (String s : lesPc){
+                        try {
+                            Bdd.addPc(s);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("Ok !");
+                    break;
+
+                case "updateBdd":
+                    String[] lesPcs = new String[]{};
+                    Bdd = new JDBControleur();
+                    try {
+                        lesPcs = httpRequest.getHosts().split(";");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    for (String s : lesPcs){
+                        try {
+                            if(!(Bdd.doesComputerExist(s))) {
+                                Bdd.addPc(s);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("Ok !");
+                    break;
+
 
                 case("help"):
                     System.out.println("\033[0;33mServer commands : ");
                     System.out.println("\033[0;36mhelp  \033[0m| Show this help page.");
+                    System.out.println("\033[0;36minitBdd \033[0m| Init the database with computer of WAPT (warning it reset the room param to default.");
+                    System.out.println("\033[0;36mupdateBdd \033[0m| update all the computer without deleting the previous one.");
                     System.out.println("\033[0;36mgetAllUsers  \033[0m| Show all users referenced in the database.");
                     System.out.println("\033[0;36maddUser \033[0m| Add a user.");
                     System.out.println("\033[0;36mupdateUser \033[0m| Update the value of a user.");
+                    System.out.println("\033[0;36mgetAllRooms  \033[0m| Show all rooms referenced in the database.");
+                    System.out.println("\033[0;36maddRoom \033[0m| Add a room.");
+                    System.out.println("\033[0;36mupdateRoom \033[0m| Update the value of a room.");
                     System.out.println("\033[0;36mlistAccess \033[0m| List all user->room access.");
                     System.out.println("\033[0;36maddAccess \033[0m| Add a user->room access.");
                     System.out.println("\033[0;36mremoveAccess \033[0m| Remove a user->room access.");
