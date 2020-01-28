@@ -88,18 +88,27 @@ public class accueilControl implements Initializable {
 
     public void lanceInstall(MouseEvent mouseEvent) {
         if(!(this.selected == null)) {
+            Boolean ite = false;
             for (Node i : checkboxes.getChildren()) {
                 if (i.getTypeSelector().equals("CheckBox")) {
                     if(((CheckBox)i).isSelected()) {
+                        ite = true;
                         System.out.println(((CheckBox) i).getText());
                         ((CheckBox) i).setSelected(false);
                     }
                 }
             }
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmation.setTitle("Ok !");
-            confirmation.setContentText("La requête d'installation\na été envoyé, les paquets\nseront installé sous peu.");
-            confirmation.showAndWait();
+            if (ite) {
+                Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmation.setTitle("Ok !");
+                confirmation.setContentText("La requête d'installation\na été envoyé, les paquets\nseront installé sous peu.");
+                confirmation.showAndWait();
+            }else{
+                Alert confirmation = new Alert(Alert.AlertType.WARNING);
+                confirmation.setTitle("Attention !");
+                confirmation.setContentText("Veuillez sélectionner\nau moins un paquet.");
+                confirmation.showAndWait();
+            }
         }else{
             Alert selectionWarning = new Alert(Alert.AlertType.WARNING);
             selectionWarning.setTitle("Attention !");

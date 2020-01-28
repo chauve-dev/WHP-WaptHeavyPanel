@@ -7,10 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -62,10 +59,14 @@ public class salleControl implements Initializable {
             items.add(s);
         }
 
-
+        for (int i=1; i<40; i++) {
+            checkboxes.getChildren().add(new CheckBox("test"+i));
+            checkboxes.getChildren().add(new Separator());
+        }
 
         pstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("invalid.png"))));
         lstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("valid.png"))));
+        labelP.setText(donnees.getSelectedSalle());
     }
 
     public void selectItem(MouseEvent mouseEvent) {
@@ -77,18 +78,27 @@ public class salleControl implements Initializable {
 
     public void lanceInstall(MouseEvent mouseEvent) {
         if(!(this.selected == null)) {
+            Boolean ite = false;
             for (Node i : checkboxes.getChildren()) {
                 if (i.getTypeSelector().equals("CheckBox")) {
                     if(((CheckBox)i).isSelected()) {
+                        ite = true;
                         System.out.println(((CheckBox) i).getText());
                         ((CheckBox) i).setSelected(false);
                     }
                 }
             }
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmation.setTitle("Ok !");
-            confirmation.setContentText("La requête d'installation\na été envoyé, les paquets\nseront installé sous peu.");
-            confirmation.showAndWait();
+            if (ite) {
+                Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmation.setTitle("Ok !");
+                confirmation.setContentText("La requête d'installation\na été envoyé, les paquets\nseront installé sous peu.");
+                confirmation.showAndWait();
+            }else{
+                Alert confirmation = new Alert(Alert.AlertType.WARNING);
+                confirmation.setTitle("Attention !");
+                confirmation.setContentText("Veuillez sélectionner\nau moins un paquet.");
+                confirmation.showAndWait();
+            }
         }else{
             Alert selectionWarning = new Alert(Alert.AlertType.WARNING);
             selectionWarning.setTitle("Attention !");

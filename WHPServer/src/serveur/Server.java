@@ -73,7 +73,6 @@ public class Server
 }
 
 class serverCommander implements Runnable{
-    Socket s;
     public serverCommander(){
     }
     @Override
