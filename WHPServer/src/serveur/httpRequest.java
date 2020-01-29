@@ -90,6 +90,33 @@ public class httpRequest {
         return toreturn.toString();
     }
 
+    public static String getHostUUID(String name) throws JSONException {
+        String string = getStringHttp("http://10.122.52.253/api/v1/hosts",  "admin", "@laclaireFONTAINE");
+        JSONObject json = new JSONObject(string);
+        JSONArray jarray = json.getJSONArray("result");
+        for (int i = 0; i <jarray.length(); i++){
+            JSONObject obj = jarray.getJSONObject(i);
+            if(obj.getString("computer_name").equals(name)){
+                return obj.getString("uuid");
+            }
+        }
+        return "";
+    }
+
+    public static String getAlreadyInstalled(String name) throws JSONException {
+        StringBuilder toreturn= new StringBuilder();
+        String string = getStringHttp("http://10.122.52.253/api/v1/hosts",  "admin", "@laclaireFONTAINE");
+        JSONObject json = new JSONObject(string);
+        JSONArray jarray = json.getJSONArray("result");
+        for (int i = 0; i <jarray.length(); i++) {
+            JSONObject obj = jarray.getJSONObject(i);
+            if (obj.getString("computer_name").equals(name)) {
+                toreturn.append(obj.get("depends"));
+            }
+        }
+        return toreturn.toString().replace(",", ";");
+    }
+
     public static String getHostsDet(String name) throws JSONException {
         StringBuilder toreturn= new StringBuilder();
         String string = getStringHttp("http://10.122.52.253/api/v1/hosts",  "admin", "@laclaireFONTAINE");
@@ -122,20 +149,7 @@ public class httpRequest {
 
 
     public static void main(String[] args) throws JSONException, ParserConfigurationException, IOException, SAXException {
-        String string = getStringHttp("https://afpa.service-now.com/api/now/table/cmdb_ci_computer"/*+"?sysparm_limit=100"*/, "PROX01", "pr@789dsi");
-        JSONObject json = new JSONObject(string);
-        JSONArray jarray = json.getJSONArray("result");
-        for (int i = 0; i < jarray.length(); i++) {
-            JSONObject obj = jarray.getJSONObject(i);
-            try {
-            if(obj.getJSONObject("location").getString("link").equals("https://afpa.service-now.com/api/now/table/cmn_location/c9fa757b2bce11001b70d24d59da15ed")) {
-                //System.out.println(obj.toString().replace(",", ",\n"));
-                System.out.println(obj.getString("name"));
-            }
-            }catch (JSONException e){
 
-            }
-        }
     }
 
 }

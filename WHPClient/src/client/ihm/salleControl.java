@@ -17,6 +17,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class salleControl implements Initializable {
@@ -87,30 +90,48 @@ public class salleControl implements Initializable {
 
     public void selectItem(MouseEvent mouseEvent) throws Exception {
         String pc = listePcs.getSelectionModel().getSelectedItems().toString();
-        String[] info = new String[]{};
-        pc = pc.substring(1, pc.length() - 1);
-        if(mouseEvent.getClickCount()==1 && !this.selected.equals(pc)) {
-            this.selected = pc;
-            pcselectionnee.setText(this.selected);
-            donnees.getDos().writeUTF(encryption.encryptMessage("com:getDetPc:" + this.selected, donnees.getServerPub()));
-            info = encryption.decryptMessage(donnees.getDis().readUTF(), donnees.getPrivateKey()).split(";");
-            c_nom.setText(info[0]);
-            c_os.setText(info[1]);
-            c_constr.setText(info[2]);
-            c_mod.setText(info[3]);
-            c_ip.setText(info[4]);
-            c_mac.setText(info[5]);
-            c_dns.setText(info[6]);
-            if (info[7].equals("OK")) {
-                lstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("valid.png"))));
-            } else {
-                lstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("invalid.png"))));
-            }
+        if(!pc.equals("")) {
+            String[] info;
+            List<String> alreadyInstalled = new ArrayList<>();
+            pc = pc.substring(1, pc.length() - 1);
+            if (mouseEvent.getClickCount() == 1 && !this.selected.equals(pc)) {
+                this.selected = pc;
+                pcselectionnee.setText(this.selected);
+                donnees.getDos().writeUTF(encryption.encryptMessage("com:getDetPc:" + this.selected, donnees.getServerPub()));
+                info = encryption.decryptMessage(donnees.getDis().readUTF(), donnees.getPrivateKey()).split(";");
+                c_nom.setText(info[0]);
+                c_os.setText(info[1]);
+                c_constr.setText(info[2]);
+                c_mod.setText(info[3]);
+                c_ip.setText(info[4]);
+                c_mac.setText(info[5]);
+                c_dns.setText(info[6]);
+                if (info[7].equals("OK")) {
+                    lstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("valid.png"))));
+                } else {
+                    lstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("invalid.png"))));
+                }
 
-            if (info[8].equals("OK")) {
-                pstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("valid.png"))));
-            } else {
-                pstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("invalid.png"))));
+                if (info[8].equals("OK")) {
+                    pstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("valid.png"))));
+                } else {
+                    pstate.setImage(new Image(String.valueOf(getClass().getClassLoader().getResource("invalid.png"))));
+                }
+                donnees.getDos().writeUTF(encryption.encryptMessage("com:getAlreadyInstalled:" + this.selected, donnees.getServerPub()));
+                alreadyInstalled = new ArrayList<String>(Arrays.asList(encryption.decryptMessage(donnees.getDis().readUTF(), donnees.getPrivateKey()).split(";")));
+                for (Node i : checkboxes.getChildren()) {
+                    if (i.getTypeSelector().equals("CheckBox")) {
+                        ((CheckBox) i).setSelected(false);
+                    }
+                }
+                System.out.println(alreadyInstalled);
+                for (Node i : checkboxes.getChildren()) {
+                    if (i.getTypeSelector().equals("CheckBox")) {
+                        if (alreadyInstalled.contains(((CheckBox) i).getText())) {
+                            ((CheckBox) i).setSelected(true);
+                        }
+                    }
+                }
             }
         }
 
@@ -120,29 +141,29 @@ public class salleControl implements Initializable {
         StringBuilder toSend = new StringBuilder();
         if(!(this.selected.equals(""))) {
             toSend.append(selected).append(";");
-            Boolean ite = false;
             for (Node i : checkboxes.getChildren()) {
                 if (i.getTypeSelector().equals("CheckBox")) {
                     if(((CheckBox)i).isSelected()) {
-                        ite = true;
                         toSend.append(((CheckBox) i).getText()).append(";");
-                        ((CheckBox) i).setSelected(false);
+                        //((CheckBox) i).setSelected(false);
                     }
                 }
             }
-            if (ite) {
+            toSend.append("toUninstall;");
+            for (Node i : checkboxes.getChildren()) {
+                if (i.getTypeSelector().equals("CheckBox")) {
+                    if(!((CheckBox)i).isSelected()) {
+                        toSend.append(((CheckBox) i).getText()).append(";");
+                        //((CheckBox) i).setSelected(false);
+                    }
+                }
+            }
                 toSend = toSend.deleteCharAt(toSend.length() -1);
                 donnees.getDos().writeUTF(encryption.encryptMessage("com:install:"+toSend, donnees.getServerPub()));
                 Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
                 confirmation.setTitle("Ok !");
                 confirmation.setContentText("La requête d'installation\na été envoyé, les paquets\nseront installé sous peu.");
                 confirmation.showAndWait();
-            }else{
-                Alert confirmation = new Alert(Alert.AlertType.WARNING);
-                confirmation.setTitle("Attention !");
-                confirmation.setContentText("Veuillez sélectionner\nau moins un paquet.");
-                confirmation.showAndWait();
-            }
         }else{
             Alert selectionWarning = new Alert(Alert.AlertType.WARNING);
             selectionWarning.setTitle("Attention !");

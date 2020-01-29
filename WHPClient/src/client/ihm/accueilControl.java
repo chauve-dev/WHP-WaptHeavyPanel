@@ -77,26 +77,28 @@ public class accueilControl implements Initializable {
 
 
     public void selectItem(MouseEvent mouseEvent) throws IOException {
-        if(mouseEvent.getClickCount()==1){
-            String salle = listSalles.getSelectionModel().getSelectedItems().toString();
-            salle = salle.substring(1, salle.length()-1);
-            String[] laSalle = salle.split("\n");
-            this.selected= laSalle[0];
-            salleselectionnee.setText(this.selected);
-        }
-        if(mouseEvent.getClickCount()>=2) {
-            String salle = listSalles.getSelectionModel().getSelectedItems().toString();
-            salle = salle.substring(1, salle.length()-1);
-            String[] laSalle = salle.split("\n");
-            donnees.setSelectedSalle(laSalle[0]);
-            Stage main = new Stage();
-            Parent root = FXMLLoader.load(getClass().getResource("salle.fxml"));
-            main.setTitle("WHP - "+salle);
-            main.initModality(Modality.WINDOW_MODAL);
-            main.initOwner(listSalles.getScene().getWindow());
-            main.setScene(new Scene(root));
-            main.setResizable(false);
-            main.show();
+        if(!listSalles.getSelectionModel().getSelectedItems().toString().equals("")) {
+            if (mouseEvent.getClickCount() == 1) {
+                String salle = listSalles.getSelectionModel().getSelectedItems().toString();
+                salle = salle.substring(1, salle.length() - 1);
+                String[] laSalle = salle.split("\n");
+                this.selected = laSalle[0];
+                salleselectionnee.setText(this.selected);
+            }
+            if (mouseEvent.getClickCount() >= 2) {
+                String salle = listSalles.getSelectionModel().getSelectedItems().toString();
+                salle = salle.substring(1, salle.length() - 1);
+                String[] laSalle = salle.split("\n");
+                donnees.setSelectedSalle(laSalle[0]);
+                Stage main = new Stage();
+                Parent root = FXMLLoader.load(getClass().getResource("salle.fxml"));
+                main.setTitle("WHP - " + salle);
+                main.initModality(Modality.WINDOW_MODAL);
+                main.initOwner(listSalles.getScene().getWindow());
+                main.setScene(new Scene(root));
+                main.setResizable(false);
+                main.show();
+            }
         }
     }
 

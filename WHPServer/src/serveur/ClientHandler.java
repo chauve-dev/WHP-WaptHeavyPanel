@@ -122,7 +122,38 @@ class ClientHandler implements Runnable
                                 case "getDetPc":
                                     sendEncryptedMessage(httpRequest.getHostsDet(received[2]), puKClient);
                                     break;
+                                case "getAlreadyInstalled":
+                                    sendEncryptedMessage(httpRequest.getAlreadyInstalled(received[2]), puKClient);
+                                    break;
                                 case "install":
+                                    String[] params = received[2].split(";");
+                                    StringBuilder install = new StringBuilder();
+                                    StringBuilder uninstall = new StringBuilder();
+                                    String uuid = httpRequest.getHostUUID(params[0]);
+                                    Boolean switched = false;
+                                    for (int i = 1; i< params.length-1; i++){
+                                        if(!switched){
+                                            if(!params[i].equals("toUninstall")){
+                                                install.append(params[i]).append(" ");
+                                            }else{
+                                                switched=true;
+                                            }
+                                        }else{
+                                            uninstall.append(params[i]).append(" ");
+                                        }
+                                    }
+                                    if(install.toString().length() >= 1) {
+                                        install = install.deleteCharAt(install.length() - 1);
+                                        for(String s : install.toString().split(" ")){
+                                            Bdd.addPackage(uuid, s);
+                                        }
+                                    }
+                                    if(uninstall.toString().length() >= 1) {
+                                        uninstall = uninstall.deleteCharAt(uninstall.length() -1);
+                                        for(String s : uninstall.toString().split(" ")){
+                                            Bdd.deletePackage(uuid, s);
+                                        }
+                                    }
                                     break;
                                 default:
                                     System.out.println(this.name+" asked for "+received[0]+":"+received[1]+" but this command doesn't exist");
